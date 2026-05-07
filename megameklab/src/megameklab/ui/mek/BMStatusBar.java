@@ -77,8 +77,7 @@ public class BMStatusBar extends StatusBar {
     }
 
     public void refreshQuirk() {
-        int quirkPoints = 42;
-        quirk.setText(String.format(QUIRK_LABEL, quirkPoints));
+        quirk.setText(String.format(QUIRK_LABEL, getMek().getQuirkValue()));
         quirk.setToolTipText("Current number of quirk points used. Not all official designs balance these!");
     }
 }
