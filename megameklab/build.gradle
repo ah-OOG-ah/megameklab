@@ -17,7 +17,7 @@ tasks.withType(AbstractArchiveTask).configureEach {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
