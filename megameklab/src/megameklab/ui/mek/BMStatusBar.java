@@ -40,22 +40,26 @@ import megameklab.util.MekUtil;
 
 public class BMStatusBar extends StatusBar {
 
+    private static final String QUIRK_LABEL = "Quirk Points: %d";
     private static final String HEAT_LABEL = "Heat: %d / %d";
     private static final String SLOTS_LABEL = "Free Slots: %d / %d";
 
     private final JLabel slots = new JLabel();
     private final JLabel heat = new JLabel();
+    private final JLabel quirk = new JLabel();
 
     public BMStatusBar(BMMainUI parent) {
         super(parent);
         add(slots);
         add(heat);
+        add(quirk);
     }
 
     @Override
     protected void additionalRefresh() {
         refreshSlots();
         refreshHeat();
+        refreshQuirk();
     }
 
     public void refreshSlots() {
@@ -70,5 +74,11 @@ public class BMStatusBar extends StatusBar {
         long totalHeat = estimatedHeatGeneration();
         heat.setText(String.format(HEAT_LABEL, totalHeat, heatCapacity));
         heat.setToolTipText("Estimated Total Heat Generated / Total Heat Dissipated");
+    }
+
+    public void refreshQuirk() {
+        int quirkPoints = 42;
+        quirk.setText(String.format(QUIRK_LABEL, quirkPoints));
+        quirk.setToolTipText("Current number of quirk points used. Not all official designs balance these!");
     }
 }
