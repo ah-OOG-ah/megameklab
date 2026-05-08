@@ -483,6 +483,7 @@ public class QuirksTab extends ITab implements DialogOptionListener {
             updateQuirkFontStyle(comp, isActive);
         }
         if (refresh != null) {
+            refresh.refreshStatus();
             refresh.refreshPreview();
         }
     }
