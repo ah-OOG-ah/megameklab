@@ -77,7 +77,11 @@ public class BMStatusBar extends StatusBar {
     }
 
     public void refreshQuirk() {
-        quirk.setText(String.format(QUIRK_LABEL, getMek().getQuirkValue()));
-        quirk.setToolTipText("Current number of quirk points used. Not all official designs balance these!");
+        int quirkValue = getMek().getQuirkValue();
+        String quirkComplications = getMek().getQuirkComplications();
+        String quirkLabel = QUIRK_LABEL + (quirkComplications.isEmpty() ? "" : "*");
+
+        quirk.setText(String.format(quirkLabel, quirkValue));
+        quirk.setToolTipText("Current number of quirk points used. Not all official designs balance these!" + quirkComplications);
     }
 }
