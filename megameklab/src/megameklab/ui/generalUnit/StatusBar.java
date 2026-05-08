@@ -32,6 +32,11 @@
  */
 package megameklab.ui.generalUnit;
 
+import static java.lang.Math.max;
+import static megamek.common.options.OptionsConstants.QUIRK_WEAPON_NEG_NO_COOLING;
+import static megamek.common.options.OptionsConstants.QUIRK_WEAPON_NEG_POOR_COOLING;
+import static megamek.common.options.OptionsConstants.QUIRK_WEAPON_POS_IMP_COOLING;
+
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -232,9 +237,9 @@ public class StatusBar extends ITab {
         if (getEntity() instanceof Mek) {
             if (getEntity().getOriginalJumpMP() > 0) {
                 if (getEntity().getJumpType() == Mek.JUMP_IMPROVED) {
-                    heat += Math.max(3, Math.ceil(getMek().getOriginalJumpMP() / 2.0f));
+                    heat += max(3, Math.ceil(getMek().getOriginalJumpMP() / 2.0f));
                 } else {
-                    heat += Math.max(3, getEntity().getOriginalJumpMP());
+                    heat += max(3, getEntity().getOriginalJumpMP());
                 }
                 if (getEntity().getEngineType() == Engine.XXL_ENGINE) {
                     heat *= 2;
@@ -254,6 +259,17 @@ public class StatusBar extends ITab {
                 continue;
             }
 
+            if (mounted.hasQuirk(QUIRK_WEAPON_POS_IMP_COOLING)) {
+                weaponHeat = max(1, weaponHeat - 1);
+            } else if (mounted.hasQuirk(QUIRK_WEAPON_NEG_POOR_COOLING)) {
+                ++weaponHeat;
+            } else if (mounted.hasQuirk(QUIRK_WEAPON_NEG_NO_COOLING)) {
+                // TODO: is this right?
+                weaponHeat += 2;
+            }
+
+            // One-shot weapons can't fire every turn, so "discount" their heat generation - you can spread the cooling
+            // over multiple turns
             if ((weaponType.getAmmoType() == AmmoType.AmmoTypeEnum.ROCKET_LAUNCHER)
                   || weaponType.hasFlag(WeaponType.F_ONE_SHOT)) {
                 weaponHeat *= 0.25;
@@ -268,6 +284,7 @@ public class StatusBar extends ITab {
                 weaponHeat *= 6;
             }
 
+            // see rockets - streaks only heat up if they fire, and they don't always fire!
             if ((weaponType.getAmmoType() == AmmoType.AmmoTypeEnum.SRM_STREAK) || (weaponType.getAmmoType()
                   == AmmoType.AmmoTypeEnum.LRM_STREAK)) {
                 weaponHeat *= 0.5;
