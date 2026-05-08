@@ -33,6 +33,7 @@
 package megameklab.ui.generalUnit;
 
 import static java.lang.Math.max;
+import static megamek.common.options.OptionsConstants.QUIRK_POS_COMBAT_COMPUTER;
 import static megamek.common.options.OptionsConstants.QUIRK_WEAPON_NEG_NO_COOLING;
 import static megamek.common.options.OptionsConstants.QUIRK_WEAPON_NEG_POOR_COOLING;
 import static megamek.common.options.OptionsConstants.QUIRK_WEAPON_POS_IMP_COOLING;
@@ -301,6 +302,11 @@ public class StatusBar extends ITab {
                 heat += m.getType().getHeat();
             }
         }
+
+        if (getEntity().hasQuirk(QUIRK_POS_COMBAT_COMPUTER)) {
+            heat = max(0, heat - 4);
+        }
+
         return Math.round(heat);
     }
 }
