@@ -234,16 +234,7 @@ public class StatusBar extends ITab {
             return 0;
         }
         double heat = 0;
-
-        if (getEntity() instanceof Mek mek) {
-            if (mek.getOriginalJumpMP() > 0) {
-                heat += mek.getJumpHeat(mek.getOriginalJumpMP());
-            } else if (mek.getEngineType() == Engine.XXL_ENGINE) {
-                heat += 6;
-            } else {
-                heat += 2;
-            }
-        }
+        boolean hasSCM = false;
 
         for (Mounted<?> mounted : getEntity().getTotalWeaponList()) {
             WeaponType weaponType = (WeaponType) mounted.getType();
@@ -287,12 +278,25 @@ public class StatusBar extends ITab {
         }
 
         for (Mounted<?> m : getEntity().getMisc()) {
-            if (m.getType().hasFlag(MiscType.F_LASER_INSULATOR)) {
+            final var type = m.getType();
+            if (type.hasFlag(MiscType.F_LASER_INSULATOR)) {
                 heat--;
-            } else if (m.getType().hasFlag(MiscType.F_PPC_CAPACITOR)) {
+            } else if (type.hasFlag(MiscType.F_PPC_CAPACITOR)) {
                 heat += 5;
+            } else if (type.hasFlag(MiscType.F_SCM)) {
+                hasSCM = true;
             } else {
                 heat += m.getType().getHeat();
+            }
+        }
+
+        if (getEntity() instanceof Mek mek) {
+            if (mek.getOriginalJumpMP() > 0) {
+                heat += mek.getJumpHeat(mek.getOriginalJumpMP());
+            } else if (!hasSCM && mek.getEngineType() == Engine.XXL_ENGINE) {
+                heat += 6;
+            } else if (!hasSCM) {
+                heat += 2;
             }
         }
 
