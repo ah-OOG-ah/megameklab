@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2025 The MegaMek Team. All Rights Reserved.
+ * Copyright (C) 2008-2026 The MegaMek Team. All Rights Reserved.
  *
  * This file is part of MegaMekLab.
  *
@@ -41,7 +41,7 @@ import megameklab.util.MekUtil;
 public class BMStatusBar extends StatusBar {
 
     private static final String QUIRK_LABEL = "Quirk Points: %d";
-    private static final String HEAT_LABEL = "Heat: %d / %d";
+    private static final String HEAT_LABEL = "Est. Heat: %d / %s";
     private static final String SLOTS_LABEL = "Free Slots: %d / %d";
 
     private final JLabel slots = new JLabel();
@@ -70,9 +70,8 @@ public class BMStatusBar extends StatusBar {
     }
 
     public void refreshHeat() {
-        int heatCapacity = getMek().getHeatCapacity();
         long totalHeat = estimatedHeatGeneration();
-        heat.setText(String.format(HEAT_LABEL, totalHeat, heatCapacity));
+        heat.setText(String.format(HEAT_LABEL, totalHeat, getMek().formatHeat()));
         heat.setToolTipText("Estimated Total Heat Generated / Total Heat Dissipated");
     }
 

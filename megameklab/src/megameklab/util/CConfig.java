@@ -115,6 +115,7 @@ public final class CConfig {
 
     public static final int RECENT_FILE_COUNT = 10;
     public static final String FILE_RECENT_PREFIX = "Save_File_";
+    public static final String RECENT_ENTRY_DELIMITER = "|";
     public static final String FILE_LAST_DIRECTORY = "Last_directory";
     public static final String FILE_CHOOSER_WINDOW = "File_Chooser_Window";
     public static final String FORCE_BUILD_WINDOW = "Force_Build_Window";
@@ -137,6 +138,7 @@ public final class CConfig {
     public static final String RS_SHOW_PILOT_DATA = "rs_show_pilot_data";
     public static final String RS_SHOW_ERA = "rs_show_era";
     public static final String RS_SHOW_ROLE = "rs_show_role";
+    public static final String RS_SHOW_TECH_LEVEL = "rs_show_tech_level";
     public static final String RS_HEAT_PROFILE = "rs_heat_profile";
     public static final String RS_TAC_OPS_HEAT = "rs_tac_ops_heat";
     public static final String RS_REFERENCE = "rs_reference";
@@ -190,6 +192,7 @@ public final class CConfig {
         defaults.setProperty(RS_SHOW_QUIRKS, Boolean.toString(true));
         defaults.setProperty(RS_SHOW_ERA, Boolean.toString(true));
         defaults.setProperty(RS_SHOW_ROLE, Boolean.toString(true));
+        defaults.setProperty(RS_SHOW_TECH_LEVEL, Boolean.toString(false));
         defaults.setProperty(RS_SHOW_PILOT_DATA, Boolean.toString(true));
         defaults.setProperty(RS_SHOW_C3BV, Boolean.toString(false));
         defaults.setProperty(RS_SCALE_FACTOR, "1");
@@ -444,19 +447,43 @@ public final class CConfig {
         }
     }
 
+    /**
+     * Adds a file to the most recent files list.
+     *
+     * @param newFile The path to the file to add.
+     */
     public static void setMostRecentFile(final String newFile) {
+        setMostRecentFile(newFile, null);
+    }
+
+    /**
+     * Adds a file (and optionally an entry name if it's a ZIP) to the most recent files list.
+     *
+     * @param newFile   The path to the file.
+     * @param entryName The name of the entry within the file (e.g., for ZIP files). Can be null.
+     */
+    public static void setMostRecentFile(final String newFile, final String entryName) {
         if ((newFile == null) || newFile.isBlank()) {
             return;
         }
 
+        String recentString = newFile;
+        if ((entryName != null) && !entryName.isBlank()) {
+            recentString += RECENT_ENTRY_DELIMITER + entryName;
+        }
+
         List<String> recentFiles = getRecentFiles();
         List<String> recentFilesWithoutDuplicates = recentFiles.stream().distinct().collect(Collectors.toList());
-        recentFilesWithoutDuplicates.removeIf(f -> f.equalsIgnoreCase(newFile));
-        recentFilesWithoutDuplicates.addFirst(newFile);
+        final String finalRecentString = recentString;
+        recentFilesWithoutDuplicates.removeIf(f -> f.equalsIgnoreCase(finalRecentString));
+        recentFilesWithoutDuplicates.addFirst(recentString);
         setRecentFiles(recentFilesWithoutDuplicates);
         CConfig.saveConfig();
     }
 
+    /**
+     * @return A list of the most recently loaded unit files.
+     */
     public static List<String> getRecentFiles() {
         List<String> result = new ArrayList<>();
         for (int i = 1; i <= RECENT_FILE_COUNT; i++) {
@@ -467,6 +494,11 @@ public final class CConfig {
         return result;
     }
 
+    /**
+     * Updates the stored recent files parameters.
+     *
+     * @param files The list of files to store.
+     */
     private static void setRecentFiles(List<String> files) {
         for (int i = 0; i < RECENT_FILE_COUNT; i++) {
             if (i < files.size()) {

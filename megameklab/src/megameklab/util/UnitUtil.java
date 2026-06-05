@@ -422,8 +422,10 @@ public class UnitUtil {
     }
 
     private static boolean isLegal(Entity unit, ITechnology tech, int techLevelYear) {
+        boolean ignoreExtinction = CConfig.getBooleanParam(CConfig.TECH_EXTINCT)
+              || ((unit instanceof Mek mek) && mek.isFrankenMek());
         if (unit.isMixedTech()) {
-            if (!tech.isAvailableIn(techLevelYear, CConfig.getBooleanParam(CConfig.TECH_EXTINCT))) {
+            if (!tech.isAvailableIn(techLevelYear, ignoreExtinction)) {
                 return false;
             }
         } else {
@@ -431,9 +433,7 @@ public class UnitUtil {
                 return false;
             }
 
-            if (!tech.isAvailableIn(techLevelYear,
-                  unit.isClan(),
-                  CConfig.getBooleanParam(CConfig.TECH_EXTINCT))) {
+            if (!tech.isAvailableIn(techLevelYear, unit.isClan(), ignoreExtinction)) {
                 return false;
             }
         }
@@ -1528,7 +1528,7 @@ public class UnitUtil {
         } else if (unit.hasETypeFlag(Entity.ETYPE_BATTLEARMOR)) {
             testEntity = new TestBattleArmor((BattleArmor) unit, entityVerifier.baOption, null);
         } else if (unit.hasETypeFlag(Entity.ETYPE_INFANTRY)) {
-            testEntity = new TestInfantry((Infantry) unit, entityVerifier.infOption, null);
+            testEntity = new TestInfantry((ConvInfantry) unit, entityVerifier.infOption, null);
         } else if (unit.hasETypeFlag(Entity.ETYPE_HANDHELD_WEAPON)) {
             testEntity = new TestHandheldWeapon((HandheldWeapon) unit, entityVerifier.infOption, null);
         }
@@ -1852,7 +1852,7 @@ public class UnitUtil {
             UnitUtil.removeMounted(unit, m);
         }
 
-        if (unit instanceof Infantry pbi) {
+        if (unit instanceof ConvInfantry pbi) {
             if ((null != pbi.getPrimaryWeapon()) && !techManager.isLegal(pbi.getPrimaryWeapon())) {
                 dirty = true;
                 InfantryUtil.replaceMainWeapon(pbi, (InfantryWeapon) EquipmentType.get("Infantry Auto Rifle"), false);
